@@ -47,7 +47,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 27
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -129,19 +129,69 @@ TextureImporter:
       name: Slimblor_1
       rect:
         serializedVersion: 2
-        x: 0
-        y: 245
+        x: 28
+        y: 272
         width: 27
-        height: 26
-      alignment: 9
-      pivot: {x: 0.5, y: 0.5192308}
+        height: 27
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -13.5, y: 13.5}
+        - {x: -13.5, y: -13.5}
+        - {x: 13.5, y: -13.5}
+        - {x: 13.5, y: 13.5}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 260051f40ea2dbd4da1bb1d1b9b8b015
+      internalID: 497823976
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slimblor_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 244
+        width: 27
+        height: 27
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 260051f40ea2dbd4da1bb1d1b9b8b015
-      internalID: 497823976
+      spriteID: 9969107521456274289fa73c412be861
+      internalID: 1397125313
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slimblor_3
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 245
+        width: 27
+        height: 27
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -13.5, y: 13.5}
+        - {x: -13.5, y: -13.5}
+        - {x: 13.5, y: -13.5}
+        - {x: 13.5, y: 13.5}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 07177c2738e1e31418ff90d9f4e0d6fa
+      internalID: 973916881
       vertices: []
       indices: 
       edges: []
@@ -158,7 +208,9 @@ TextureImporter:
     secondaryTextures: []
     nameFileIdTable:
       Slimblor_1: 497823976
+      Slimblor_3: 973916881
       Slimblor_0: -798989363
+      Slimblor_2: 1397125313
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
