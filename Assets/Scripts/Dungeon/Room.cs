@@ -58,6 +58,9 @@ public class Room : MonoBehaviour
 
                 // Update the position of the other object
                 other.transform.position = newPosition;
+
+                GameObject prefab = Resources.Load<GameObject>("Save");
+                Instantiate(prefab, new Vector3(X, (Y * Height)-8.60f), Quaternion.identity);
             }
         }
     }
