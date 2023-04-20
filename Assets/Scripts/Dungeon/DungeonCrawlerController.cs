@@ -28,7 +28,9 @@ using UnityEngine;
                
             for(int i = 0; i< dungeonData.numberOfCrawlers; i++)
             {
-                dungeonCrawlers.Add(new DungeonCrawler(Vector2Int.zero));
+                DungeonCrawler newCrawler = ScriptableObject.CreateInstance<DungeonCrawler>();
+                newCrawler.Init(Vector2Int.zero);
+                dungeonCrawlers.Add(newCrawler);
             }
 
             int iterations = Random.Range(dungeonData.iterationMin, dungeonData.iterationMax);

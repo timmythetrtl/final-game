@@ -13,6 +13,8 @@ public class Room : MonoBehaviour
 
     public int Y;
     // Start is called before the first frame update
+    private int count = 0;
+
     void Start()
     {
         if(RoomController.instance == null)
@@ -62,7 +64,61 @@ public class Room : MonoBehaviour
                 GameObject prefab = Resources.Load<GameObject>("Save");
                 Instantiate(prefab, new Vector3(X, (Y * Height)-8.60f), Quaternion.identity);
             }
+            Collider2D[] colliders = Physics2D.OverlapBoxAll(transform.position, GetComponent<BoxCollider2D>().size, 0f);
+            foreach (Collider2D collider in colliders)
+            {
+                if (collider.CompareTag("Enemy"))
+                {
+                    Freezer enemyFreezer = collider.GetComponent<Freezer>();
+                    if (enemyFreezer != null)
+                    {
+                        enemyFreezer.Continue();
+                    }
+                    Debug.Log(count);
+                }
+            }
+        }
+        if (other.tag == "Enemy")
+        {
+            count++;
+        }
+
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.tag == "Player")
+        {
+            Collider2D[] colliders = Physics2D.OverlapBoxAll(transform.position, GetComponent<BoxCollider2D>().size, 0f);
+            foreach (Collider2D collider in colliders)
+            {
+                if (collider.CompareTag("Enemy"))
+                {
+                    Freezer enemyFreezer = collider.GetComponent<Freezer>();
+                    if (enemyFreezer != null)
+                    {
+                        enemyFreezer.Stop();
+                    }
+                }
+            }
+        }
+        else if (other.tag == "Enemy")
+        {
+            count--;
+            Debug.Log(count);
+            if (count == 0)
+            {
+                GameObject block = GameObject.FindGameObjectWithTag("Block");
+                if (block != null)
+                {
+                    Debug.Log("PLEASE");
+                    Destroy(block);
+                }
+            }
         }
     }
+
+
+
 
 }

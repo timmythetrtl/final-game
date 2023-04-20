@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ground
+  - Enemy
+  - Block
   layers:
   - Default
   - TransparentFX
@@ -44,4 +46,10 @@ TagManager:
     locked: 0
   - name: Floor
     uniqueID: 392280929
+    locked: 0
+  - name: Weapons
+    uniqueID: 1818079533
+    locked: 0
+  - name: Creatures
+    uniqueID: 107439175
     locked: 0

@@ -24,7 +24,6 @@ public class DungeonGenerator : MonoBehaviour
         {
             if (roomLocation == dungeonRooms[dungeonRooms.Count - 1] /*&& (roomLocation == Vector2Int.zero)*/)
             {
-                Debug.Log("Death");
                 RoomController.instance.LoadRoom("End", roomLocation.x, roomLocation.y);
             }
             else
