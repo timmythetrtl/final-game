@@ -74,7 +74,6 @@ public class Room : MonoBehaviour
                     {
                         enemyFreezer.Continue();
                     }
-                    Debug.Log(count);
                 }
             }
         }
@@ -105,13 +104,11 @@ public class Room : MonoBehaviour
         else if (other.tag == "Enemy")
         {
             count--;
-            Debug.Log(count);
             if (count == 0)
             {
                 GameObject block = GameObject.FindGameObjectWithTag("Block");
                 if (block != null)
                 {
-                    Debug.Log("PLEASE");
                     Destroy(block);
                 }
             }

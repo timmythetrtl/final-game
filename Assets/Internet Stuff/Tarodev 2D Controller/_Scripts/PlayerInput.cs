@@ -8,7 +8,7 @@ namespace TarodevController {
     public class PlayerInput : MonoBehaviour {
         public FrameInput FrameInput { get; private set; }
 
-        private void Update() => FrameInput = Gather();
+            private void Update() =>  FrameInput = Gather();
 
 #if ENABLE_INPUT_SYSTEM
         private PlayerInputActions _actions;
@@ -23,16 +23,15 @@ namespace TarodevController {
         }
 
         private void OnEnable() => _actions.Enable();
-        
+
         private void OnDisable() => _actions.Disable();
 
         private FrameInput Gather() {
             return new FrameInput {
                 JumpDown = _jump.WasPressedThisFrame(),
                 JumpHeld = _jump.IsPressed(),
-                DashDown = _dash.WasPressed(),
-                AttackLeft = _attack.WasPressedThisFrame(),
-                AttackRight = _attack.WasPressedThisFrame(),
+                DashDown = _dash.WasPressedThisFrame(),
+                AttackDown = _attack.WasPressedThisFrame(),
                 Move = _move.ReadValue<Vector2>()
             };
         }
@@ -40,11 +39,10 @@ namespace TarodevController {
 #elif ENABLE_LEGACY_INPUT_MANAGER
         private FrameInput Gather() {
             return new FrameInput {
-                JumpDown = Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.C),
-                JumpHeld = Input.GetButton("Jump") || Input.GetKey(KeyCode.C),
-                DashDown = Input.GetKeyDown(KeyCode.X),
-                AttackLeft = Input.GetKeyDown(KeyCode.LeftArrow),
-                AttackRight = Input.GetKeyDown(KeyCode.RightArrow),
+                JumpDown = Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.Z),
+                JumpHeld = Input.GetButton("Jump") || Input.GetKey(KeyCode.Z),
+                DashDown = Input.GetKeyDown(KeyCode.P),
+                AttackDown = Input.GetKeyDown(KeyCode.X),
                 Move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")),
             };
         }
@@ -56,7 +54,6 @@ namespace TarodevController {
         public bool JumpDown;
         public bool JumpHeld;
         public bool DashDown;
-        public bool AttackLeft;
-        public bool AttackRight;
+        public bool AttackDown;
     }
 }

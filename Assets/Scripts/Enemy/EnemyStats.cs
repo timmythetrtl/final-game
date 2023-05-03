@@ -11,8 +11,10 @@ public class EnemyStats : MonoBehaviour
     [HideInInspector]
     public float currentHealth;
     [HideInInspector]
-    public float currentDamage;
-    
+    public int currentDamage;
+
+    public GameObject deathParticlesPrefab;
+
     void Awake(){
         currentMoveSpeed = enemyData.MoveSpeed;
         currentHealth = enemyData.MaxHealth;
@@ -23,6 +25,7 @@ public class EnemyStats : MonoBehaviour
         currentHealth -= dmg;
 
         if(currentHealth <= 0){
+            Instantiate(deathParticlesPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }
     }

@@ -1,22 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerStats : MonoBehaviour
 {
 
     public CharacterScriptableObject characterData;
 
-    float currentHealth;
+    public int currentHealth;
     float currentRecovery;
     float currentMoveSpeed;
     float currentMight;
     float currentProjectileSpeed;
 
-    [Header("Experience/Leve")]
+    public float dashDistance;
+    public float dashDuration;
+    public float dashCooldown;
+
+    [Header("Experience/Level")]
     public int experience = 0;
     public int level = 1;
     public int experienceCap;
+
+    public static int score;
 
     [System.Serializable]
 
@@ -32,11 +39,17 @@ public class PlayerStats : MonoBehaviour
     float invincibilityTimer;
     bool isInvincible;
 
+    private Rigidbody2D rb;
+    private SpriteRenderer spriteRenderer;
+    private int flipped = 1;
+
     public List<LevelRange> levelRanges;
 
     void Start()
     {
         experienceCap = levelRanges[0].experienceCapIncrease;
+        rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
 
     }
@@ -51,6 +64,15 @@ public class PlayerStats : MonoBehaviour
         {
             isInvincible = false;
         }
+
+        if (spriteRenderer.flipX)
+        {
+            flipped = 1;
+        }
+        else
+        {
+            flipped = -1;
+        }
     }
 
     public void IncreaseExperience(int amount)
@@ -58,6 +80,11 @@ public class PlayerStats : MonoBehaviour
         experience += amount;
 
         LevelUpChecker();
+    }
+
+    public void IncreaseScore(int amount)
+    {
+        score += amount;
     }
 
     void LevelUpChecker()
@@ -89,7 +116,7 @@ public class PlayerStats : MonoBehaviour
         currentProjectileSpeed = characterData.ProjectileSpeed;
     }
 
-    public void TakeDamage(float dmg)
+    public void TakeDamage(int dmg)
     {
         if (!isInvincible)
         {
@@ -98,20 +125,58 @@ public class PlayerStats : MonoBehaviour
             invincibilityTimer = invincibilityDuration;
             isInvincible = true;
 
+            // Start the blinking coroutine on the player's visual component
+            StartCoroutine(Blink(transform.Find("Visual").GetComponent<Renderer>()));
+
             if (currentHealth <= 0)
             {
                 Kill();
             }
+
+            //StartCoroutine(Dash());
         }
     }
+    IEnumerator Dash()
+    {
+
+        Vector2 dashVelocity = new Vector2(flipped * transform.localScale.x * dashDistance / dashDuration, 0f);
+
+        float dashTime = 0f;
+
+        while (dashTime < dashDuration)
+        {
+            rb.MovePosition(rb.position + dashVelocity * Time.fixedDeltaTime);
+            dashTime += Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
+        }
+
+        yield return new WaitForSeconds(dashCooldown);
+
+    }
+
+
+    IEnumerator Blink(Renderer renderer)
+    {
+        // Blink for the duration of invincibility
+        while (isInvincible)
+        {
+            renderer.enabled = false;
+            yield return new WaitForSeconds(0.05f);
+            renderer.enabled = true;
+            yield return new WaitForSeconds(0.05f);
+        }
+        renderer.enabled = true; // make sure renderer is visible when invincibility ends
+    }
+
 
     public void Kill()
     {
-        Debug.Log("PLAYER IS DEAD");
+        SceneManager.LoadSceneAsync("GameOver");
+        SceneManager.UnloadSceneAsync("BasementMain");
     }
 
 
-    public void RestoreHealth(float amount)
+    public void RestoreHealth(int amount)
     {
         if (currentHealth < characterData.MaxHealth)
         {
@@ -123,4 +188,30 @@ public class PlayerStats : MonoBehaviour
             }
         }
     }
+
+    public GameObject meterPrefab; // Drag the Meter prefab to this field in the Inspector
+
+    public void DrownMeter(bool check)
+    {
+        Transform meterTransform = transform.Find("Meter");
+
+        if (check)
+        {
+            if (meterTransform == null)
+            {
+                // Instantiate the Meter prefab as a child of this object
+                GameObject meterObject = Instantiate(meterPrefab, transform);
+                meterObject.name = "Meter"; // Rename the object to "Meter"
+            }
+        }
+        else
+        {
+            if (meterTransform != null)
+            {
+                // Destroy the Meter object if it exists
+                Destroy(meterTransform.gameObject);
+            }
+        }
+    }
+
 }

@@ -12,9 +12,9 @@ public class CharacterScriptableObject : ScriptableObject
     public GameObject StartingWeapon { get => startingWeapon; private set => startingWeapon = value; }
 
     [SerializeField]
-    float maxHealth;
+    int maxHealth;
 
-    public float MaxHealth { get => maxHealth; private set => maxHealth = value; }
+    public int MaxHealth { get => maxHealth; private set => maxHealth = value; }
 
     [SerializeField]
     float recovery;

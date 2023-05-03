@@ -2,51 +2,48 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-    public enum Direction
+public enum Direction
+{
+    up = 0,
+
+    left = 1,
+
+    down = 2,
+
+    right = 3
+};
+
+public class DungeonCrawlerController : MonoBehaviour
+{
+    private static readonly Dictionary<Direction, Vector2Int> directionMovementMap = new Dictionary<Direction, Vector2Int>
     {
-        up = 0,
-
-        left = 1,
-
-        down = 2,
-
-        right = 3
+        { Direction.up, Vector2Int.up},
     };
-    // Start is called before the first frame update
-    public class DungeonCrawlerController : MonoBehaviour
+
+    public static List<Vector2Int> GenerateDungeon(DungeonGenerationData dungeonData)
     {
-        public static List<Vector2Int> positionsVisited = new List<Vector2Int>();
+        List<Vector2Int> positionsVisited = new List<Vector2Int>();
 
-        private static readonly Dictionary<Direction, Vector2Int> directionMovementMap = new Dictionary<Direction, Vector2Int>
+        List<DungeonCrawler> dungeonCrawlers = new List<DungeonCrawler>();
+
+        for (int i = 0; i < dungeonData.numberOfCrawlers; i++)
         {
-            { Direction.up, Vector2Int.up},
-        };
+            DungeonCrawler newCrawler = ScriptableObject.CreateInstance<DungeonCrawler>();
+            newCrawler.Init(Vector2Int.zero);
+            dungeonCrawlers.Add(newCrawler);
+        }
 
-        public static List<Vector2Int> GenerateDungeon(DungeonGenerationData dungeonData)
+        int iterations = Random.Range(dungeonData.iterationMin, dungeonData.iterationMax);
+
+        for (int i = 0; i < iterations; i++)
         {
-            List<DungeonCrawler> dungeonCrawlers = new List<DungeonCrawler>();
-               
-            for(int i = 0; i< dungeonData.numberOfCrawlers; i++)
+            foreach (DungeonCrawler dungeonCrawler in dungeonCrawlers)
             {
-                DungeonCrawler newCrawler = ScriptableObject.CreateInstance<DungeonCrawler>();
-                newCrawler.Init(Vector2Int.zero);
-                dungeonCrawlers.Add(newCrawler);
+                Vector2Int newPos = dungeonCrawler.Move(directionMovementMap);
+                positionsVisited.Add(newPos);
             }
-
-            int iterations = Random.Range(dungeonData.iterationMin, dungeonData.iterationMax);
-
-            for(int i = 0; i < iterations; i++)
-            {
-                foreach(DungeonCrawler dungeonCrawler in dungeonCrawlers)
-                {
-                    Vector2Int newPos = dungeonCrawler.Move(directionMovementMap);
-                    positionsVisited.Add(newPos);
-                }
-            }
+        }
 
         return positionsVisited;
-
-        }
     }
-
-    
+}

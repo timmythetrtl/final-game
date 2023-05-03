@@ -31,7 +31,6 @@ namespace TarodevController {
         public event Action<bool, float> GroundedChanged;
         public event Action<bool, Vector2> DashingChanged;
         public event Action<bool> WallGrabChanged;
-        public event Action<bool> LedgeClimbChanged;
         public event Action<bool> Jumped;
         public event Action AirJumped;
         public event Action Attacked;
@@ -78,7 +77,8 @@ namespace TarodevController {
         }
 
         protected virtual void Update() {
-            GatherInput();
+            if (!PauseMenu.isPaused)
+                GatherInput();
         }
 
         protected virtual void GatherInput() {
@@ -97,7 +97,7 @@ namespace TarodevController {
             if (_frameInput.Move.x != 0) _stickyFeet = false;
 
             if (_frameInput.DashDown && _stats.AllowDash) _dashToConsume = true;
-            if ((_frameInput.AttackLeft || _frameInput.AttackRight) && _stats.AllowAttacks) _attackToConsume = true;
+            if (_frameInput.AttackDown && _stats.AllowAttacks) _attackToConsume = true;
         }
 
         protected virtual void FixedUpdate() {
@@ -106,8 +106,6 @@ namespace TarodevController {
             CheckCollisions();
             HandleCollisions();
             HandleWalls();
-            HandleLedges();
-            HandleLadders();
 
             HandleCrouching();
             HandleJump();
@@ -248,123 +246,6 @@ namespace TarodevController {
 
         #endregion
 
-        #region Ledges
-
-        private Vector2 _ledgeCornerPos;
-        private bool _climbIntoCrawl;
-
-        private bool LedgeClimbInputDetected => Input.y > _stats.VerticalDeadzoneThreshold || Input.x == WallDirection;
-
-        protected virtual void HandleLedges() {
-            if (!_stats.AllowLedges) return;
-            if (ClimbingLedge || !_isOnWall) return;
-
-            GrabbingLedge = TryGetLedgeCorner(out _ledgeCornerPos);
-
-            if (GrabbingLedge) HandleLedgeGrabbing();
-        }
-
-        protected virtual bool TryGetLedgeCorner(out Vector2 cornerPos) {
-            cornerPos = Vector2.zero;
-            var grabHeight = _rb.position + _stats.LedgeGrabPoint.y * Vector2.up;
-
-            var hit1 = Physics2D.Raycast(grabHeight + _stats.LedgeRaycastSpacing * Vector2.down, WallDirection * Vector2.right, 0.5f, _stats.ClimbableLayer);
-            if (!hit1.collider) return false; // Should hit below the ledge. Mainly used to determine xPos accurately
-
-            var hit2 = Physics2D.Raycast(grabHeight + _stats.LedgeRaycastSpacing * Vector2.up, WallDirection * Vector2.right, 0.5f, _stats.ClimbableLayer);
-            if (hit2.collider)
-                return false; // we only are within ledge-grab range when the first hits and second doesn't
-
-            var hit3 = Physics2D.Raycast(grabHeight + new Vector2(WallDirection * 0.5f, _stats.LedgeRaycastSpacing), Vector2.down, 0.5f, _stats.ClimbableLayer);
-            if (!hit3.collider) return false; // gets our yPos of the corner
-
-            cornerPos = new(hit1.point.x, hit3.point.y);
-            return true;
-        }
-
-        protected virtual void HandleLedgeGrabbing() {
-            // Nudge towards better grabbing position
-            if (Input.x == 0 && _hasControl) {
-                var pos = _rb.position;
-                var targetPos = _ledgeCornerPos - Vector2.Scale(_stats.LedgeGrabPoint, new(WallDirection, 1f));
-                _rb.position = Vector2.MoveTowards(pos, targetPos, _stats.LedgeGrabDeceleration * Time.fixedDeltaTime);
-            }
-
-            if (LedgeClimbInputDetected) {
-                var finalPos = _ledgeCornerPos + Vector2.Scale(_stats.StandUpOffset, new(WallDirection, 1f));
-                
-                if (IsStandingPosClear(finalPos)) {
-                    _climbIntoCrawl = false;
-                    StartLedgeClimb();
-                }
-                else if (_stats.AllowCrouching && IsCrouchingPosClear(finalPos)) {
-                    _climbIntoCrawl = true;
-                    StartLedgeClimb(intoCrawl: true);
-                }
-            }
-        }
-
-        protected virtual void StartLedgeClimb(bool intoCrawl = false) {
-            LedgeClimbChanged?.Invoke(intoCrawl);
-            TakeAwayControl();
-            ClimbingLedge = true;
-            GrabbingLedge = false;
-            _rb.position = _ledgeCornerPos - Vector2.Scale(_stats.LedgeGrabPoint, new(WallDirection, 1f));
-        }
-
-        public virtual void TeleportMidLedgeClimb() {
-            transform.position = _rb.position = _ledgeCornerPos + Vector2.Scale(_stats.StandUpOffset, new(WallDirection, 1f));
-            if (_climbIntoCrawl) TryToggleCrouching(shouldCrouch: true);
-            ToggleOnWall(false);
-        }
-
-        public virtual void FinishClimbingLedge() {
-            ClimbingLedge = false;
-            ReturnControl();
-        }
-
-        #endregion
-
-        #region Ladders
-
-        private Vector2 _ladderSnapVel;
-        private int _frameLeftLadder;
-
-        private bool CanEnterLadder => _ladderHitCount > 0 && _fixedFrame > _frameLeftLadder + _stats.LadderCooldownFrames;
-        private bool ShouldMountLadder => _stats.AutoAttachToLadders || _frameInput.Move.y > _stats.VerticalDeadzoneThreshold || (!_grounded && _frameInput.Move.y < -_stats.VerticalDeadzoneThreshold);
-        private bool ShouldDismountLadder => !_stats.AutoAttachToLadders && _grounded && _frameInput.Move.y < -_stats.VerticalDeadzoneThreshold;
-        private bool ShouldCenterOnLadder => _stats.SnapToLadders && _frameInput.Move.x == 0 && _hasControl;
-
-        protected virtual void HandleLadders() {
-            if (!_stats.AllowLadders) return;
-
-            if (!ClimbingLadder && CanEnterLadder && ShouldMountLadder) ToggleClimbingLadder(true);
-            else if (ClimbingLadder && (_ladderHitCount == 0 || ShouldDismountLadder)) ToggleClimbingLadder(false);
-
-            if (ClimbingLadder && ShouldCenterOnLadder) {
-                var pos = _rb.position;
-                var targetX = _ladderHits[0].transform.position.x;
-                _rb.position = Vector2.SmoothDamp(pos, new Vector2(targetX, pos.y), ref _ladderSnapVel, _stats.LadderSnapTime);
-            }
-        }
-
-        private void ToggleClimbingLadder(bool on) {
-            if (ClimbingLadder == on) return;
-            if (on) {
-                _speed = Vector2.zero;
-                _ladderSnapVel = Vector2.zero; // reset damping velocity for consistency
-            }
-            else {
-                if (_ladderHitCount > 0) _frameLeftLadder = _fixedFrame; // to prevent immediately re-mounting ladder
-                if (_frameInput.Move.y > 0) _speed.y += _stats.LadderPopForce; // Pop off ladders
-            }
-
-            ClimbingLadder = on;
-            ResetAirJumps();
-        }
-
-        #endregion
-
         #region Crouching
 
         private int _frameStartedCrouching;
@@ -375,17 +256,14 @@ namespace TarodevController {
         protected virtual void HandleCrouching() {
             if (!_stats.AllowCrouching) return;
 
-            if (!Crouching && CrouchPressed && _grounded) { 
-                //TryToggleCrouching(true);
-            }
-            else if (Crouching && (!CrouchPressed || !_grounded)) TryToggleCrouching(false);
+            //if (!Crouching && CrouchPressed && _grounded) TryToggleCrouching(true);
+            //else if (Crouching && (!CrouchPressed || !_grounded)) TryToggleCrouching(false);
         }
 
         protected virtual bool TryToggleCrouching(bool shouldCrouch) {
             if (Crouching && !CanStand) return false;
 
             Crouching = shouldCrouch;
-            ToggleColliders(!shouldCrouch);
             if (Crouching) _frameStartedCrouching = _fixedFrame;
             return true;
         }
@@ -432,7 +310,6 @@ namespace TarodevController {
             _frameJumpWasPressed = 0; // prevents double-dipping 1 input's jumpToConsume and buffered jump for low ceilings
             _bufferedJumpUsable = false;
             _coyoteUsable = false;
-            ToggleClimbingLadder(false);
             _speed.y = _stats.JumpPower;
             Jumped?.Invoke(false);
         }
@@ -520,22 +397,10 @@ namespace TarodevController {
 
         protected virtual void HandleAttacking() {
             if (!_attackToConsume) return;
-           
+            // note: animation looks weird if we allow attacking while crouched. consider different attack animations or not allow it while crouched
             if (_fixedFrame > _frameLastAttacked + _stats.AttackFrameCooldown) {
-                Transform visualTransform = transform.Find("Visual"); // Get the child object "Visual"
-                SpriteRenderer visualSpriteRenderer = visualTransform.GetComponent<SpriteRenderer>(); // Get the SpriteRenderer component of the child object
-                Debug.Log(!visualSpriteRenderer.flipX);
-                Debug.Log(_frameInput.AttackLeft);
-                if (!visualSpriteRenderer.flipX && _frameInput.AttackLeft)
-                {
-                    //visualSpriteRenderer.flipX = true;
-                }
-                else if (visualSpriteRenderer.flipX && _frameInput.AttackRight)
-                {
-                    //visualSpriteRenderer.flipX = false;
-                }
-
                 _frameLastAttacked = _fixedFrame;
+                HandleDash();
                 Attacked?.Invoke();
             }
 
@@ -661,7 +526,6 @@ namespace TarodevController {
 
         public event Action<bool, Vector2> DashingChanged; // Dashing - Dir
         public event Action<bool> WallGrabChanged;
-        public event Action<bool> LedgeClimbChanged; // Into Crawl
         public event Action<bool> Jumped; // Is wall jump
         public event Action AirJumped;
         public event Action Attacked;

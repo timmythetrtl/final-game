@@ -9,4 +9,16 @@ public class SceneController : MonoBehaviour
         SceneManager.LoadScene(name);
 
     }
+
+    public void Quit()
+    {
+        Application.Quit();
+    }
+
+    public void AddScene(string name)
+    {
+        SceneManager.LoadScene(name, LoadSceneMode.Additive);
+
+    }
 }
+

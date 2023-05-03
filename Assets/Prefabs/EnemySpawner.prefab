@@ -51,7 +51,7 @@ MonoBehaviour:
     - enemyName: 
       enemyCount: 3
       spawnCount: 0
-      enemyPrefab: {fileID: 2010834454495412541, guid: a22ed160a4aa09f438c57a0fa794f1d1, type: 3}
+      enemyPrefab: {fileID: 95693703125914099, guid: a22ed160a4aa09f438c57a0fa794f1d1, type: 3}
     waveQuota: 0
     spawnInterval: 0
     spawnCount: 0

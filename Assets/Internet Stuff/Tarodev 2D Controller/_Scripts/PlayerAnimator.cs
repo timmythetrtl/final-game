@@ -17,9 +17,6 @@ namespace TarodevController {
 
         private void Start() {
             _player.GroundedChanged += OnGroundedChanged;
-            _player.WallGrabChanged += OnWallGrabChanged;
-            _player.DashingChanged += OnDashingChanged;
-            _player.LedgeClimbChanged += OnLedgeClimbChanged;
             _player.Jumped += OnJumped;
             _player.AirJumped += OnAirJumped;
             _player.Attacked += OnAttacked;
@@ -34,9 +31,7 @@ namespace TarodevController {
         }
 
         private void HandleSpriteFlipping() {
-            if (_player.ClimbingLedge) return;
-            if (_isOnWall &_player.WallDirection != 0) _renderer.flipX = _player.WallDirection == -1;
-            else if (Mathf.Abs(_player.Input.x) > 0.1f) _renderer.flipX = _player.Input.x < 0;
+            if (Mathf.Abs(_player.Input.x) > 0.1f) _renderer.flipX = _player.Input.x < 0;
         }
 
         #region Ground Movement
@@ -77,8 +72,6 @@ namespace TarodevController {
         [SerializeField] private ParticleSystem _wallSlideParticles;
         [SerializeField] private AudioSource _wallSlideSource;
         [SerializeField] private AudioClip[] _wallClimbClips;
-        [SerializeField] private float _maxWallSlideVolume = 0.2f;
-        [SerializeField] private float _wallSlideVolumeSpeed = 0.6f;
         [SerializeField] private float _wallSlideParticleOffset = 0.3f;
 
         private bool _hitWall, _isOnWall, _isSliding, _dismountedWall;
@@ -103,9 +96,6 @@ namespace TarodevController {
             SetParticleColor(new Vector2(_player.WallDirection, 0), _wallSlideParticles);
             _wallSlideParticles.transform.localPosition = new Vector3(_wallSlideParticleOffset * _player.WallDirection, 0, 0);
 
-            _wallSlideSource.volume = _isSliding || _player.ClimbingLadder && _player.Speed.y < 0
-                ? Mathf.MoveTowards(_wallSlideSource.volume, _maxWallSlideVolume, _wallSlideVolumeSpeed * Time.deltaTime)
-                : 0;
         }
 
         private int _wallClimbIndex = 0;
@@ -128,32 +118,6 @@ namespace TarodevController {
             _climbIntoCrawl = intoCrawl;
             
             UnlockAnimationLock(); // unlocks the LockState, so that ledge climbing animation doesn't get skipped
-        }
-
-        // Called from AnimationEvent
-        public void TeleportPlayerMidLedgeClimb() {
-            if (_player is PlayerController player) player.TeleportMidLedgeClimb();
-        }
-
-        // Called from AnimationEvent
-        public void FinishLedgeClimbing() {
-            _grounded = true;
-            if (_player is PlayerController player) player.FinishClimbingLedge();
-        }
-
-        #endregion
-
-        #region Ladders
-
-        [Header("LADDER")]
-        [SerializeField] private AudioClip[] _ladderClips;
-        private int _climbIndex = 0;
-
-        // Called from AnimationEvent
-        public void PlayLadderClimbSound() {
-            if (_player.Speed.y < 0) return;
-            _climbIndex = (_climbIndex + 1) % _ladderClips.Length;
-            PlaySound(_ladderClips[_climbIndex], 0.07f);
         }
 
         #endregion
@@ -195,7 +159,6 @@ namespace TarodevController {
         private bool _wallJumped;
 
         private void OnJumped(bool wallJumped) {
-            if (_player.ClimbingLedge) return;
             
             _jumpTriggered = true;
             _wallJumped = wallJumped;
@@ -264,13 +227,11 @@ namespace TarodevController {
 
                 if (_isLedgeClimbing) return LockState(_climbIntoCrawl ? LedgeClimbIntoCrawl : LedgeClimb, _player.PlayerStats.LedgeClimbDuration);
                 if (_attacked) return LockState(Attack, _attackAnimTime);
-                if (_player.ClimbingLadder) return _player.Speed.y == 0 || _grounded ? ClimbIdle : Climb;
 
                 if (!_grounded) {
                     if (_hitWall) return LockState(WallHit, _wallHitAnimTime);
                     if (_isOnWall) {
                         if (_player.Speed.y < 0) return WallSlide;
-                        if (_player.GrabbingLedge) return LedgeGrab; // does this priority order give the right feel/look?
                         if (_player.Speed.y > 0) return WallClimb;
                         if (_player.Speed.y == 0) return WallIdle;
                     }

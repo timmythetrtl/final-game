@@ -7,6 +7,8 @@ TagManager:
   - Ground
   - Enemy
   - Block
+  - Head
+  - Water
   layers:
   - Default
   - TransparentFX
@@ -43,6 +45,9 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Water
+    uniqueID: 945944491
     locked: 0
   - name: Floor
     uniqueID: 392280929

@@ -29,6 +29,8 @@ public class RoomController : MonoBehaviour
 
     bool isLoadingRoom = false;
 
+    public static int rooms = 0;
+
     void Awake()
     {
         instance = this;
@@ -36,12 +38,6 @@ public class RoomController : MonoBehaviour
 
     void Start()
     {
-        //LoadRoom("Start", 0, 0);
-        //LoadRoom("Empty", 1, 0);
-        //LoadRoom("Empty", -1, 0);
-        //LoadRoom("Empty", 0, 1);
-        //LoadRoom("Empty", 0, 2);
-        //LoadRoom("Empty", 0, -1);
 
     }
 
@@ -80,6 +76,8 @@ public class RoomController : MonoBehaviour
         newRoomData.name = name;
         newRoomData.X = x;
         newRoomData.Y = y;
+
+        rooms++;
 
         loadRoomQueue.Enqueue(newRoomData);
     }
