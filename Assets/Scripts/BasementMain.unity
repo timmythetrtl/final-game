@@ -1901,6 +1901,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dungeonGenerationData: {fileID: 11400000, guid: 640f995cfc1bd3f4dac7cb432c172007, type: 2}
+  prefabs:
+  - {fileID: 2369288834768247904, guid: bbff640aefe238d43a2b3c9d4f562e25, type: 3}
+  - {fileID: 1464321630139907733, guid: b859ca3edcaf052458a851085a355aaa, type: 3}
+  - {fileID: 3190535512607087437, guid: 2b886a7671d3c5449a4a76e605522c73, type: 3}
+  - {fileID: 6792740543186084076, guid: b2a69da9c05650a4ba57514117ec76c1, type: 3}
+  - {fileID: 6339973716366701519, guid: 0094283031e3d1d48a7a898147d36fe1, type: 3}
+  - {fileID: 6339973716366701519, guid: e5c7dc07d0c9ad64898068856745f6ab, type: 3}
+  - {fileID: 6339973716366701519, guid: 04da2c8c56d72984791abf308a584deb, type: 3}
+  - {fileID: 6339973716366701519, guid: 0389946bf3765024890d55b0fd218945, type: 3}
+  - {fileID: 6339973716366701519, guid: 258da9b1f144ea843b9e916cbe027ead, type: 3}
+  - {fileID: 6339973716366701519, guid: 531548377d3ce08479486a4310f89b97, type: 3}
+  - {fileID: 6339973716366701519, guid: c9450549f07657f4ca39634b9d05be5d, type: 3}
+  - {fileID: 6339973716366701519, guid: 04afab9e3062cea448d63a2a36e53da2, type: 3}
+  - {fileID: 6339973716366701519, guid: a22e86d5508204d448376807983df776, type: 3}
+  - {fileID: 6339973716366701519, guid: 852e9160d6f73de48a21a6a7bf20440d, type: 3}
 --- !u!1 &1323495733
 GameObject:
   m_ObjectHideFlags: 0
