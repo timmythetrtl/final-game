@@ -14,7 +14,16 @@ public class ResolutionControl : MonoBehaviour
 
     void Start()
     {
-        resolutions = Screen.resolutions;
+        // Get unique resolutions
+        List<Resolution> uniqueResolutions = new List<Resolution>();
+        foreach (Resolution resolution in Screen.resolutions)
+        {
+            if (!uniqueResolutions.Contains(resolution))
+            {
+                uniqueResolutions.Add(resolution);
+            }
+        }
+        resolutions = uniqueResolutions.ToArray();
 
         // Populate the dropdown with the available resolutions
         resolutionDropdown.ClearOptions();
@@ -38,6 +47,7 @@ public class ResolutionControl : MonoBehaviour
         // Set the toggle to the current full screen mode
         fullScreenToggle.isOn = Screen.fullScreen;
     }
+
 
     public void ApplyChanges()
     {
